@@ -1,0 +1,83 @@
+/* ~/.config/waybar/style.css — Catppuccin Mocha
+ * Colors live in colors.css — edit that file to re-theme everything at once. */
+@import url("colors.css");
+
+* {
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 14px;
+    min-height: 0;
+    transition: all 200ms ease-in-out;
+}
+
+window#waybar {
+    background: alpha(@base, 0.85);
+    border-radius: 14px;
+    border: 2px solid alpha(@accent, 0.5);
+    color: @text;
+}
+
+#workspaces {
+    background: transparent;
+    margin: 4px 6px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #6c7086;
+    background: transparent;
+    border-radius: 8px;
+    transition: all 200ms ease-in-out;
+}
+
+#workspaces button.active {
+    color: @base;
+    background: @accent;
+}
+
+#workspaces button:hover {
+    background: alpha(@accent, 0.25);
+    color: @text;
+}
+
+#window,
+#clock,
+#cpu,
+#memory,
+#battery,
+#network,
+#pulseaudio,
+#tray,
+#custom-sidebar {
+    padding: 0 10px;
+    margin: 4px 2px;
+    background: alpha(@surface, 0.6);
+    border-radius: 8px;
+    color: @text;
+    transition: all 200ms ease-in-out;
+}
+
+#clock {
+    color: #f5c2e7;
+    font-weight: bold;
+}
+
+#custom-sidebar {
+    color: @accent;
+    font-weight: bold;
+}
+
+#custom-sidebar:hover {
+    background: @accent;
+    color: @base;
+}
+
+#battery.warning { color: @warning; }
+#battery.critical { color: @critical; }
+
+#network.disconnected { color: @critical; }
+
+#pulseaudio.muted { color: #6c7086; }
+
+#tray > .needs-attention {
+    background-color: @critical;
+}

@@ -1,0 +1,8 @@
+/* catppuccin-latte — generated, do not hand-edit; re-run generate_theme_assets.py */
+@define-color base       #eff1f5;
+@define-color surface    #bcc0cc;
+@define-color text       #4c4f69;
+@define-color subtext    #6c6f85;
+@define-color accent     #8839ef;
+@define-color warning    #df8e1d;
+@define-color critical   #d20f39;

@@ -1,0 +1,24 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Python (generate_theme_assets.py)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Runtime/scratch files created by scripts, not part of the repo
+/tmp/
+*.log
+
+# Local override configs some users keep outside the theme system
+*.local.conf

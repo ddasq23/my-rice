@@ -1,0 +1,265 @@
+;; ~/.config/eww/eww.yuck
+;; Sidebar: network, bluetooth, power profile, pomodoro timer
+
+;; ---------- Polls / listeners ----------
+(deflisten pomodoro-state :initial "{\"mode\":\"idle\",\"remaining\":\"25:00\"}"
+  "~/.config/eww/scripts/pomodoro.sh listen")
+
+(defpoll wifi-status :interval "5s" "~/.config/eww/scripts/network.sh status")
+(defpoll wifi-name :interval "5s" "~/.config/eww/scripts/network.sh name")
+(defpoll bt-status :interval "5s" "~/.config/eww/scripts/bluetooth.sh status")
+(defpoll bt-devices :interval "10s" "~/.config/eww/scripts/bluetooth.sh devices")
+(defpoll power-profile :interval "5s" "~/.config/eww/scripts/power.sh current")
+(defpoll data-usage :interval "30s" "~/.config/eww/scripts/network.sh data")
+(defpoll clock-now :interval "1s" `date '+%H:%M:%S'`)
+(defpoll date-now :interval "60s" `date '+%A, %d %B'`)
+(defpoll current-theme :interval "2s" "cat ~/.config/current_theme 2>/dev/null || echo catppuccin-mocha")
+(defpoll settings :interval "1s" "~/.config/eww/scripts/settings-get.sh")
+(defvar active-tab "general")
+
+;; ---------- Window ----------
+(defwindow sidebar
+  :monitor 0
+  :geometry (geometry :x "0px"
+                       :y "0px"
+                       :width "300px"
+                       :height "100%"
+                       :anchor "right center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  (sidebar-content))
+
+;; ---------- Control Center ----------
+(defwindow control
+  :monitor 0
+  :geometry (geometry :x "0px"
+                       :y "0px"
+                       :width "480px"
+                       :height "560px"
+                       :anchor "center center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  (control-content))
+
+;; ---------- Layout ----------
+(defwidget sidebar-content []
+  (box :class "sidebar" :orientation "v" :space-evenly false :spacing 14
+    (clock-widget)
+    (separator)
+    (network-widget)
+    (bluetooth-widget)
+    (power-widget)
+    (separator)
+    (pomodoro-widget)
+    (separator)
+    (theme-widget)))
+
+(defwidget separator []
+  (box :class "sep" :height 1))
+
+(defwidget clock-widget []
+  (box :class "card clock-card" :orientation "v" :space-evenly false :spacing 2
+    (label :class "clock-time" :text clock-now)
+    (label :class "clock-date" :text date-now)))
+
+(defwidget network-widget []
+  (box :class "card" :orientation "v" :space-evenly false :spacing 6
+    (box :orientation "h" :space-evenly false
+      (label :class "card-icon" :text "󰤨")
+      (label :class "card-title" :text "Network")
+      (box :hexpand true)
+      (button :class {wifi-status == "on" ? "toggle on" : "toggle off"}
+              :onclick "~/.config/eww/scripts/network.sh toggle"
+              (label :text {wifi-status == "on" ? "ON" : "OFF"})))
+    (label :class "card-sub" :text wifi-name)
+    (label :class "card-sub dim" :text data-usage)))
+
+(defwidget bluetooth-widget []
+  (box :class "card" :orientation "v" :space-evenly false :spacing 6
+    (box :orientation "h" :space-evenly false
+      (label :class "card-icon" :text "󰂯")
+      (label :class "card-title" :text "Bluetooth")
+      (box :hexpand true)
+      (button :class {bt-status == "on" ? "toggle on" : "toggle off"}
+              :onclick "~/.config/eww/scripts/bluetooth.sh toggle"
+              (label :text {bt-status == "on" ? "ON" : "OFF"})))
+    (label :class "card-sub dim" :text bt-devices)))
+
+(defwidget power-widget []
+  (box :class "card" :orientation "v" :space-evenly false :spacing 6
+    (box :orientation "h" :space-evenly false
+      (label :class "card-icon" :text "󰈐")
+      (label :class "card-title" :text "Power plan"))
+    (box :orientation "h" :space-evenly true :spacing 4
+      (button :class {power-profile == "power-saver" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/power.sh set power-saver"
+              "Saver")
+      (button :class {power-profile == "balanced" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/power.sh set balanced"
+              "Balanced")
+      (button :class {power-profile == "performance" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/power.sh set performance"
+              "Perf"))))
+
+(defwidget pomodoro-widget []
+  (box :class "card pomo-card" :orientation "v" :space-evenly false :spacing 8
+    (box :orientation "h" :space-evenly false
+      (label :class "card-icon" :text "󰄉")
+      (label :class "card-title" :text "Pomodoro"))
+    (label :class "pomo-time" :text {pomodoro-state.remaining})
+    (label :class "pomo-mode dim" :text {pomodoro-state.mode})
+    (box :orientation "h" :space-evenly true :spacing 6
+      (button :class "chip" :onclick "~/.config/eww/scripts/pomodoro.sh start" "Start")
+      (button :class "chip" :onclick "~/.config/eww/scripts/pomodoro.sh pause" "Pause")
+      (button :class "chip" :onclick "~/.config/eww/scripts/pomodoro.sh reset" "Reset"))))
+
+(defwidget theme-widget []
+  (box :class "card" :orientation "v" :space-evenly false :spacing 8
+    (box :orientation "h" :space-evenly false
+      (label :class "card-icon" :text "󰸌")
+      (label :class "card-title" :text "Theme")
+      (box :hexpand true)
+      (label :class "card-sub dim" :text current-theme))
+    (box :class "theme-row" :orientation "h" :space-evenly true :halign "center"
+      (theme-dot :name "catppuccin-mocha" :hex "#cba6f7")
+      (theme-dot :name "catppuccin-latte" :hex "#8839ef")
+      (theme-dot :name "nord" :hex "#88c0d0")
+      (theme-dot :name "gruvbox" :hex "#d79921")
+      (theme-dot :name "dracula" :hex "#bd93f9")
+      (theme-dot :name "tokyo-night" :hex "#7aa2f7"))))
+
+(defwidget theme-dot [name hex]
+  (button :class {current-theme == name ? "theme-dot active" : "theme-dot"}
+          :style "background-color: ${hex};"
+          :tooltip name
+          :onclick "~/.config/scripts/theme-switch.sh ${name}"
+          ""))
+
+;; ==================== Control Center (Super+I) ====================
+
+(defwidget control-content []
+  (box :class "control" :orientation "v" :space-evenly false :spacing 10
+    (box :orientation "h" :space-evenly false :spacing 4
+      (label :class "control-title" :text "Control Center" :hexpand true :halign "start")
+      (button :class "chip" :onclick "eww close control" "✕"))
+    (box :class "tab-row" :orientation "h" :space-evenly true :spacing 4
+      (tab-button :tab "general" :label "General")
+      (tab-button :tab "effects" :label "Effects")
+      (tab-button :tab "animations" :label "Motion")
+      (tab-button :tab "layout" :label "Layout")
+      (tab-button :tab "keybinds" :label "Keys"))
+    (scroll :vscroll true :hscroll false
+      (box :orientation "v" :space-evenly false :spacing 10
+        (box :visible {active-tab == "general"} :orientation "v" :spacing 10 (general-tab))
+        (box :visible {active-tab == "effects"} :orientation "v" :spacing 10 (effects-tab))
+        (box :visible {active-tab == "animations"} :orientation "v" :spacing 10 (animations-tab))
+        (box :visible {active-tab == "layout"} :orientation "v" :spacing 10 (layout-tab))
+        (box :visible {active-tab == "keybinds"} :orientation "v" :spacing 10 (keybinds-tab))))
+    (button :class "chip reset" :onclick "~/.config/eww/scripts/settings-reset.sh" "Reset to defaults")))
+
+(defwidget tab-button [tab label]
+  (button :class {active-tab == tab ? "tab active" : "tab"}
+          :onclick "eww update active-tab=${tab}"
+          :hexpand true
+          label))
+
+;; ---- General: gaps / border / rounding ----
+(defwidget general-tab []
+  (box :orientation "v" :space-evenly false :spacing 12
+    (setting-slider :label "Gaps in"    :min 0 :max 30 :value {settings.gaps_in}    :key "gaps_in")
+    (setting-slider :label "Gaps out"   :min 0 :max 40 :value {settings.gaps_out}   :key "gaps_out")
+    (setting-slider :label "Border size" :min 0 :max 8  :value {settings.border_size} :key "border_size")
+    (setting-slider :label "Rounding"   :min 0 :max 30 :value {settings.rounding}   :key "rounding")
+    (box :orientation "h" :space-evenly true :spacing 6
+      (button :class "chip" :onclick "~/.config/eww/scripts/preset-set.sh compact" "Compact")
+      (button :class "chip" :onclick "~/.config/eww/scripts/preset-set.sh cozy" "Cozy")
+      (button :class "chip" :onclick "~/.config/eww/scripts/preset-set.sh spacious" "Spacious"))))
+
+;; ---- Effects: blur / opacity ----
+(defwidget effects-tab []
+  (box :orientation "v" :space-evenly false :spacing 12
+    (box :orientation "h" :space-evenly false
+      (label :class "card-title" :text "Blur" :hexpand true :halign "start")
+      (button :class {settings.blur_enabled == "true" ? "toggle on" : "toggle off"}
+              :onclick "~/.config/eww/scripts/settings-set.sh blur_enabled ${settings.blur_enabled == \"true\" ? \"false\" : \"true\"}"
+              (label :text {settings.blur_enabled == "true" ? "ON" : "OFF"})))
+    (setting-slider :label "Blur size" :min 0 :max 20 :value {settings.blur_size} :key "blur_size")
+    (setting-slider-float :label "Active opacity"   :min 0.3 :max 1.0 :value {settings.active_opacity}   :key "active_opacity")
+    (setting-slider-float :label "Inactive opacity" :min 0.3 :max 1.0 :value {settings.inactive_opacity} :key "inactive_opacity")))
+
+;; ---- Animations: profile picker ----
+(defwidget animations-tab []
+  (box :orientation "v" :space-evenly false :spacing 10
+    (label :class "card-sub dim" :halign "start"
+           :text "Snappy = fastest response. Smooth = default. Off = zero motion, best on weak GPUs.")
+    (box :orientation "v" :space-evenly false :spacing 6
+      (button :class {settings.anim_profile == "smooth" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/anim-profile-set.sh smooth" "Smooth (default)")
+      (button :class {settings.anim_profile == "snappy" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/anim-profile-set.sh snappy" "Snappy")
+      (button :class {settings.anim_profile == "off" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/anim-profile-set.sh off" "Off"))
+    (label :class "card-sub dim" :halign "start"
+           :text "This is the one change with a brief reload — everything else on this panel is instant.")))
+
+;; ---- Layout: dwindle vs master ----
+(defwidget layout-tab []
+  (box :orientation "v" :space-evenly false :spacing 10
+    (box :orientation "h" :space-evenly true :spacing 6
+      (button :class {settings.layout == "dwindle" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/settings-set.sh layout dwindle" "Dwindle")
+      (button :class {settings.layout == "master" ? "chip active" : "chip"}
+              :onclick "~/.config/eww/scripts/settings-set.sh layout master" "Master"))
+    (label :class "card-sub dim" :halign "start" :wrap true
+           :text "Dwindle: BSP-style auto-split tiling. Master: one large window plus a stack — good for one focused app.")))
+
+;; ---- Keybinds: read-only reference ----
+(defwidget keybinds-tab []
+  (box :orientation "v" :space-evenly false :spacing 4
+    (keybind-row :combo "Super + Return" :action "Terminal")
+    (keybind-row :combo "Super + Q" :action "Close window")
+    (keybind-row :combo "Super + E" :action "File manager")
+    (keybind-row :combo "Super + R" :action "App launcher")
+    (keybind-row :combo "Super + V" :action "Toggle floating")
+    (keybind-row :combo "Super + F" :action "Fullscreen")
+    (keybind-row :combo "Super + J" :action "Toggle split")
+    (keybind-row :combo "Super + L" :action "Lock screen")
+    (keybind-row :combo "Super + A" :action "Sidebar")
+    (keybind-row :combo "Super + T" :action "Theme picker")
+    (keybind-row :combo "Super + I" :action "This panel")
+    (keybind-row :combo "Super + C" :action "Terminal clock")
+    (keybind-row :combo "Super + S" :action "Special workspace")
+    (keybind-row :combo "Super + Shift + V" :action "Clipboard history")
+    (keybind-row :combo "Super + 1-0" :action "Switch workspace")
+    (keybind-row :combo "Super + Shift + 1-0" :action "Move to workspace")
+    (keybind-row :combo "Super + arrows" :action "Focus direction")
+    (keybind-row :combo "Print" :action "Screenshot (area)")
+    (label :class "card-sub dim" :halign "start"
+           :text "Full list with modifiers: ~/.config/hypr/hyprland.conf")))
+
+(defwidget keybind-row [combo action]
+  (box :orientation "h" :space-evenly false :class "keybind-row"
+    (label :class "keybind-combo" :text combo :halign "start" :width 190)
+    (label :class "keybind-action dim" :text action :halign "start" :hexpand true)))
+
+;; ---- Reusable slider widgets ----
+(defwidget setting-slider [label min max value key]
+  (box :orientation "v" :space-evenly false :spacing 2
+    (box :orientation "h" :space-evenly false
+      (label :text label :hexpand true :halign "start" :class "card-sub")
+      (label :text "${value}" :class "card-sub dim"))
+    (scale :min min :max max :value value
+           :onchange "~/.config/eww/scripts/settings-set.sh ${key} {}"
+           :class "settings-scale")))
+
+(defwidget setting-slider-float [label min max value key]
+  (box :orientation "v" :space-evenly false :spacing 2
+    (box :orientation "h" :space-evenly false
+      (label :text label :hexpand true :halign "start" :class "card-sub")
+      (label :text "${value}" :class "card-sub dim"))
+    (scale :min min :max max :value value
+           :onchange "~/.config/eww/scripts/settings-set.sh ${key} {}"
+           :class "settings-scale")))
+

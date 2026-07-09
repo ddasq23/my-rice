@@ -1,0 +1,231 @@
+/* ~/.config/eww/eww.scss — theme colors from colors.scss (swapped by theme-switch.sh) */
+@import "colors.scss";
+
+* {
+    all: unset;
+    font-family: "JetBrainsMono Nerd Font";
+}
+
+.sidebar {
+    background-color: $base;
+    padding: 18px 14px;
+    border-radius: 16px 0 0 16px;
+    border: 2px solid $accent;
+}
+
+.sep {
+    background-color: $surface;
+    border-radius: 4px;
+}
+
+.card {
+    background-color: $surface;
+    border-radius: 12px;
+    padding: 12px;
+    transition: all 200ms ease-in-out;
+}
+
+.card:hover {
+    background-color: $mantle;
+}
+
+.card-icon {
+    color: $accent;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.card-title {
+    color: $text;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.card-sub {
+    color: $subtext;
+    font-size: 12px;
+}
+
+.dim {
+    color: $subtext;
+}
+
+/* Clock */
+.clock-card {
+    padding: 16px 10px;
+}
+
+.clock-time {
+    color: $accent2;
+    font-size: 34px;
+    font-weight: bold;
+}
+
+.clock-date {
+    color: $subtext;
+    font-size: 12px;
+}
+
+/* Toggle buttons (wifi / bluetooth) */
+.toggle {
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 180ms ease-in-out;
+}
+
+.toggle.on {
+    background-color: $green;
+    color: $base;
+}
+
+.toggle.off {
+    background-color: $surface;
+    color: $subtext;
+}
+
+.toggle:hover {
+    background-color: $accent;
+    color: $base;
+}
+
+/* Power plan chips */
+.chip {
+    background-color: $surface;
+    color: $text;
+    padding: 6px 4px;
+    border-radius: 8px;
+    font-size: 11px;
+    transition: all 180ms ease-in-out;
+}
+
+.chip:hover {
+    background-color: $accent;
+    color: $base;
+}
+
+.chip.active {
+    background-color: $accent;
+    color: $base;
+    font-weight: bold;
+}
+
+/* Pomodoro */
+.pomo-card {
+    align: center;
+}
+
+.pomo-time {
+    color: $warning;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.pomo-mode {
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+/* Theme picker */
+.theme-dot {
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 11px;
+    margin: 2px;
+    transition: all 150ms ease-in-out;
+}
+
+.theme-dot:hover {
+    border: 2px solid $text;
+}
+
+.theme-dot.active {
+    border: 2px solid $accent;
+}
+
+/* ==================== Control Center ==================== */
+
+.control {
+    background-color: $base;
+    padding: 16px;
+    border-radius: 16px;
+    border: 2px solid $accent;
+}
+
+.control-title {
+    color: $text;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.tab-row {
+    margin-bottom: 4px;
+}
+
+.tab {
+    background-color: $surface;
+    color: $subtext;
+    padding: 6px 4px;
+    border-radius: 8px;
+    font-size: 11px;
+    transition: all 150ms ease-in-out;
+}
+
+.tab:hover {
+    background-color: $mantle;
+    color: $text;
+}
+
+.tab.active {
+    background-color: $accent;
+    color: $base;
+    font-weight: bold;
+}
+
+.settings-scale {
+    min-height: 18px;
+}
+
+.settings-scale trough {
+    background-color: $surface;
+    border-radius: 6px;
+    min-height: 6px;
+}
+
+.settings-scale highlight {
+    background-color: $accent;
+    border-radius: 6px;
+}
+
+.settings-scale slider {
+    background-color: $text;
+    border-radius: 8px;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+.keybind-row {
+    padding: 3px 0;
+}
+
+.keybind-combo {
+    color: $accent2;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.keybind-action {
+    font-size: 12px;
+}
+
+.chip.reset {
+    background-color: $critical;
+    color: $base;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.chip.reset:hover {
+    background-color: $warning;
+}

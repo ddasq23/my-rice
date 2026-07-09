@@ -1,0 +1,54 @@
+/* ~/.config/wofi/style.css — theme colors from colors.css (swapped by theme-switch.sh) */
+@import url("colors.css");
+
+window {
+    margin: 0px;
+    border: 2px solid @accent;
+    border-radius: 14px;
+    background-color: @base;
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 15px;
+}
+
+#input {
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    color: @text;
+    background-color: @surface;
+    padding: 8px;
+}
+
+#inner-box {
+    margin: 5px;
+    border: none;
+    background-color: transparent;
+}
+
+#outer-box {
+    margin: 5px;
+    border: none;
+    background-color: transparent;
+}
+
+#scroll {
+    margin: 5px;
+    border: none;
+}
+
+#text {
+    color: @text;
+}
+
+#entry {
+    border-radius: 10px;
+    padding: 6px;
+}
+
+#entry:selected {
+    background-color: @accent;
+}
+
+#entry:selected #text {
+    color: @base;
+}
