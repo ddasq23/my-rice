@@ -1,0 +1,6 @@
+[Unit]
+Description=Pull latest Hyprland rice from GitHub
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/scripts/ota-update.sh

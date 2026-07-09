@@ -75,6 +75,7 @@ chmod +x ~/.config/eww/scripts/*.sh ~/.config/scripts/*.sh
 | Super + I | Control Center (gaps/borders/blur/animations/layout) |
 | Super + C | Toggle floating terminal clock |
 | Super + Shift + V | Clipboard history |
+| Super + Shift + U | Pull latest rice update from GitHub (OTA) |
 | Super + 1-0 | Switch workspace |
 | Super + Shift + 1-0 | Move window to workspace |
 
@@ -159,6 +160,40 @@ PNG at `wallpapers/<theme-name>.png`.
   running (`systemctl enable --now power-profiles-daemon`).
 - Pomodoro state lives in `/tmp/eww_pomodoro_state` and resets on reboot —
   that's intentional, it's a scratch file, not a database.
+
+## OTA updates — pull changes straight from GitHub
+
+`scripts/ota-update.sh` clones this repo fresh, backs up your current
+`~/.config` folders, copies the new files into place, re-applies whichever
+theme you had active, and reloads Hyprland — all in one command.
+
+**First run** (tells it where your repo lives, only needed once):
+```bash
+~/.config/scripts/ota-update.sh https://github.com/<you>/my-rice.git
+```
+
+**Every run after that:**
+```bash
+~/.config/scripts/ota-update.sh
+```
+or just press **Super + Shift + U**.
+
+It remembers the repo URL in `~/.config/.rice-source`. Every update is
+backed up to `~/.config.bak-<timestamp>` first, so you can always roll back:
+```bash
+cp -r ~/.config.bak-20260709-2100/* ~/.config/
+```
+
+### Automatic background updates (optional)
+To have it check for updates once a day without you doing anything:
+```bash
+mkdir -p ~/.config/systemd/user
+cp ~/.config/scripts/rice-ota.service ~/.config/scripts/rice-ota.timer ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now rice-ota.timer
+```
+Check it ran: `systemctl --user status rice-ota.timer`.
+To stop auto-updates: `systemctl --user disable --now rice-ota.timer`.
 
 ## License
 No license has been chosen yet — until one is added, all rights are
