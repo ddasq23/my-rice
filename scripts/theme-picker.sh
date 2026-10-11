@@ -4,6 +4,7 @@
 
 THEMES_DIR="$HOME/.config/themes"
 
-CHOICE=$(ls "$THEMES_DIR" | wofi --dmenu --prompt "Theme" --width 300 --height 250)
+CHOICE=$(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null \
+    | sort | wofi --dmenu --prompt "Theme" --width 300 --height 250)
 
 [ -n "$CHOICE" ] && "$HOME/.config/scripts/theme-switch.sh" "$CHOICE"

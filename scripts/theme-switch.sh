@@ -19,7 +19,7 @@ THEMES_DIR="$CFG/themes"
 
 if [ -z "$THEME" ] || [ ! -d "$THEMES_DIR/$THEME" ]; then
     echo "Usage: theme-switch.sh <theme-name>"
-    echo "Available: $(ls "$THEMES_DIR" 2>/dev/null | paste -sd' ')"
+    echo "Available: $(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f ' 2>/dev/null)"
     exit 1
 fi
 
@@ -48,8 +48,15 @@ echo "$THEME" > "$CFG/current_theme"
 
 # Hyprland: read the new colors.conf values and push them straight into the
 # running compositor — instant, no reload/flicker.
-source "$SRC/hypr-colors.conf"
-hyprctl --batch "keyword general:col.active_border $borderActive1 $borderActive2 45deg ; keyword general:col.inactive_border $borderInactive" >/dev/null
+# NOTE: hypr-colors.conf is a Hyprland file ($var = rgba(...)), not a shell
+# file — sourcing it would be a syntax error, so parse the three values out.
+border_file="$SRC/hypr-colors.conf"
+borderActive1="$(sed -n 's/^[$]borderActive1 *= *//p' "$border_file")"
+borderActive2="$(sed -n 's/^[$]borderActive2 *= *//p' "$border_file")"
+borderInactive="$(sed -n 's/^[$]borderInactive *= *//p' "$border_file")"
+if [ -n "$borderActive1" ] && command -v hyprctl >/dev/null; then
+    hyprctl --batch "keyword general:col.active_border $borderActive1 $borderActive2 45deg ; keyword general:col.inactive_border $borderInactive" >/dev/null || true
+fi
 
 # Wallpaper via hyprpaper IPC — instant swap, no compositor restart.
 WALL="$CFG/wallpapers/$THEME.png"

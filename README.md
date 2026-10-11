@@ -32,27 +32,31 @@ restarts required to change anything.
 # Arch
 sudo pacman -S hyprland waybar wofi kitty dunst hyprpaper hyprlock eww \
   grim slurp wl-clipboard cliphist ttf-jetbrains-mono-nerd pipewire wireplumber \
-  networkmanager bluez bluez-utils power-profiles-daemon tty-clock
+  networkmanager bluez bluez-utils power-profiles-daemon tty-clock \
+  brightnessctl playerctl
 
 # Fedora
 sudo dnf install hyprland waybar wofi kitty dunst hyprpaper hyprlock eww \
   grim slurp wl-clipboard cliphist jetbrains-mono-fonts-all \
-  NetworkManager bluez power-profiles-daemon tty-clock
+  NetworkManager bluez power-profiles-daemon tty-clock \
+  brightnessctl playerctl
 ```
 `eww` and `tty-clock` aren't always in default repos — grab `eww` from
 https://github.com/elkowar/eww if your package manager doesn't have it.
 
-Then copy each folder into `~/.config/`:
+Then copy each folder (and the `current_theme` marker) into `~/.config/`:
 
 ```bash
-cp -r hypr waybar wofi kitty dunst eww scripts ~/.config/
+cp -r hypr waybar wofi kitty dunst eww scripts themes wallpapers current_theme ~/.config/
 chmod +x ~/.config/eww/scripts/*.sh ~/.config/scripts/*.sh
 ```
 
 ## Before you launch
-1. Drop a wallpaper at `~/Pictures/wallpapers/mocha.png` (or edit the path in
-   `hypr/hyprpaper.conf` / `hyprlock.conf`). Catppuccin's official wallpaper
-   pack: https://github.com/catppuccin/wallpapers
+1. Wallpapers are already handled — every theme ships one in `wallpapers/`,
+   and `hypr/hyprpaper.conf` / `hypr/hyprlock.conf` point at
+   `~/.config/wallpapers/catppuccin-mocha.png` (the default theme). If you
+   want your own art, drop it in `~/.config/wallpapers/<theme-name>.png` and
+   it gets picked up on the next theme switch — see the wallpaper note below.
 2. Install the Catppuccin Mocha cursor theme (`Catppuccin-Mocha-Dark-Cursors`)
    via your package manager or from
    https://github.com/catppuccin/cursors — otherwise remove that line from
@@ -79,9 +83,13 @@ chmod +x ~/.config/eww/scripts/*.sh ~/.config/scripts/*.sh
 | Super + 1-0 | Switch workspace |
 | Super + Shift + 1-0 | Move window to workspace |
 
-Everything is modular — swap the accent color (`#cba6f7`, mauve) for any
-other Catppuccin accent (blue `#89b4fa`, pink `#f5c2e7`, green `#a6e3a1`)
-by editing `waybar/colors.css` and the matching values in `eww/eww.scss`.
+Everything is modular — every accent lives in the per-theme palette, so to
+recolor an app you edit that theme's file under `themes/<name>/` (e.g.
+`themes/catppuccin-mocha/colors.css` for Waybar + Wofi,
+`themes/catppuccin-mocha/eww-colors.scss` for Eww) and re-run that theme
+switch, or change the palette in `generate_theme_assets.py` and regenerate.
+Editing the live `waybar/colors.css` / `eww/colors.scss` directly works too,
+but the next theme switch overwrites them.
 
 ## Control Center — customize without touching dotfiles
 
@@ -141,8 +149,10 @@ text-files plus a couple of IPC calls.
 ### Adding your own theme
 Add a palette entry to `PALETTES` in `generate_theme_assets.py` and rerun
 `python3 generate_theme_assets.py` — it regenerates every app's colors and a
-matching wallpaper for the new theme automatically. It'll show up in the
-`Super+T` menu and the sidebar as soon as the folder exists under `themes/`.
+matching wallpaper for the new theme automatically. It shows up in the
+`Super+T` menu as soon as the folder exists under `themes/`; the colored dots
+in the sidebar are a fixed list, so add one there by hand if you want it
+reachable from the sidebar too.
 
 ### About the wallpapers
 The "official" Catppuccin wallpaper repo was taken down, and the community

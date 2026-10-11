@@ -13,11 +13,20 @@ fmt() {
   printf "%02d:%02d" $((s / 60)) $((s % 60))
 }
 
-init_state() {
-  echo "idle:0:0" > "$STATE_FILE"
+# State file format: <mode>:<remaining-seconds>:<running 0|1>
+valid_state() {
+  local mode rem run
+  [ -f "$STATE_FILE" ] || return 1
+  IFS=: read -r mode rem run < "$STATE_FILE" || return 1
+  case "$mode" in idle|work|break) ;; *) return 1 ;; esac
+  case "$rem" in ''|*[!0-9]*) return 1 ;; esac
+  case "$run" in 0|1) ;; *) return 1 ;; esac
 }
 
-[ -f "$STATE_FILE" ] || init_state
+# Seed a state file only if there isn't a usable one already — eww restarts
+# the `listen` process whenever it reloads (e.g. on a theme switch), and that
+# must not wipe an in-progress session.
+valid_state || echo "idle:${WORK_LEN}:0" > "$STATE_FILE"
 
 case "$1" in
   start)
@@ -38,9 +47,8 @@ case "$1" in
     echo "idle:${WORK_LEN}:0" > "$STATE_FILE"
     ;;
   listen)
-    init_state
-    echo "idle:${WORK_LEN}:0" > "$STATE_FILE"
     while true; do
+      valid_state || echo "idle:${WORK_LEN}:0" > "$STATE_FILE"
       mode=$(cut -d: -f1 "$STATE_FILE")
       remaining=$(cut -d: -f2 "$STATE_FILE")
       running=$(cut -d: -f3 "$STATE_FILE")
