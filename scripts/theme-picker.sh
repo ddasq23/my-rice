@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 # ~/.config/scripts/theme-picker.sh
-# Super+T — pick a theme from a wofi menu, applied instantly.
+# SUPER+T — pick a theme (or toggle the color source) from a fuzzel menu.
 
-THEMES_DIR="$HOME/.config/themes"
+CFG="$HOME/.config"
+MODE="$(cat "$HOME/.local/state/rice/color-source" 2>/dev/null || echo theme)"
 
-CHOICE=$(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null \
-    | sort | wofi --dmenu --prompt "Theme" --width 300 --height 250)
+CHOICE="$({
+    echo "⇄ Colors from: $( [ "$MODE" = wallpaper ] && echo 'wallpaper' || echo 'theme') (toggle)"
+    "$CFG/scripts/theme-switch.sh" --list | sort
+} | fuzzel --dmenu --prompt "Theme ❯ " --lines 10 --width 40)"
 
-[ -n "$CHOICE" ] && "$HOME/.config/scripts/theme-switch.sh" "$CHOICE"
+case "$CHOICE" in
+    "")                 exit 0 ;;
+    "⇄ Colors from:"*)  "$CFG/scripts/color-source.sh" toggle ;;
+    *)                  "$CFG/scripts/theme-switch.sh" "$CHOICE" ;;
+esac

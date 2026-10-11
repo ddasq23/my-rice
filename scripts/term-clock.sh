@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ~/.config/scripts/term-clock.sh
 # Toggles a small floating terminal running tty-clock.
-# Requires: tty-clock (pacman -S tty-clock / dnf install tty-clock)
+# Requires: tty-clock (sudo pacman -S tty-clock)
 
 if hyprctl clients | grep -q "clock-term"; then
     hyprctl dispatch closewindow "class:^(clock-term)$"

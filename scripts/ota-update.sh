@@ -51,7 +51,7 @@ fi
 echo "==> Backing up current config to $CFG.bak-$(date +%Y%m%d-%H%M%S)"
 BACKUP="$CFG.bak-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP"
-for d in hypr waybar wofi kitty dunst eww scripts themes wallpapers; do
+for d in hypr waybar wofi kitty dunst eww scripts themes wallpapers fuzzel gtk-3.0 gtk-4.0 qt5ct; do
     [ -d "$CFG/$d" ] && cp -r "$CFG/$d" "$BACKUP/" 2>/dev/null || true
 done
 [ -f "$CFG/current_theme" ] && cp "$CFG/current_theme" "$BACKUP/" 2>/dev/null || true
@@ -59,7 +59,7 @@ done
 echo "==> Applying update"
 CURRENT_THEME="$(cat "$CFG/current_theme" 2>/dev/null || echo "")"
 
-for d in hypr waybar wofi kitty dunst eww scripts themes wallpapers; do
+for d in hypr waybar wofi kitty dunst eww scripts themes wallpapers fuzzel gtk-3.0 gtk-4.0 qt5ct; do
     if [ -d "$RICE_ROOT/$d" ]; then
         mkdir -p "$CFG/$d"
         cp -r "$RICE_ROOT/$d/." "$CFG/$d/"

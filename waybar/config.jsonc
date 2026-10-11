@@ -12,7 +12,7 @@
     // independent of position, so the bar is easy to reshuffle.
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/sidebar", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+    "modules-right": ["custom/perfmode", "custom/sidebar", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
 
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -72,6 +72,16 @@
     "tray": {
         "icon-size": 16,
         "spacing": 8
+    },
+
+    // Performance Mode indicator + toggle (Feature 1). Icon: 󰓅 = ON, 󰾆 = OFF.
+    // Click to toggle; the script prints JSON for this module.
+    "custom/perfmode": {
+        "exec": "~/.config/hypr/scripts/performance-mode.sh status-json",
+        "return-type": "json",
+        "interval": 5,
+        "on-click": "~/.config/hypr/scripts/performance-mode.sh toggle",
+        "tooltip": true
     },
 
     "custom/sidebar": {

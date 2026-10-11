@@ -1,4 +1,5 @@
-# ~/.config/dunst/dunstrc — Catppuccin Mocha
+# GENERATED from themes/<name>/palette.conf by scripts/theme-render.py — do not hand-edit.
+# Layout lives here; colors are filled from the active theme.
 
 [global]
     monitor = 0
