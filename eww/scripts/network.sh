@@ -11,8 +11,11 @@ case "$1" in
     fi
     ;;
   name)
-    nmcli -t -f active,ssid dev wifi | awk -F: '$1=="yes"{print $2}' | head -n1 \
-      || echo "Not connected"
+    # Show the SSID of the active connection, or a friendly fallback.
+    # (The old `... | head -n1 || echo` never took the fallback: head exits 0
+    # even when there is no match, so the card just showed a blank line.)
+    ssid=$(nmcli -t -f active,ssid dev wifi | awk -F: '$1=="yes"{print $2; exit}')
+    echo "${ssid:-Not connected}"
     ;;
   data)
     # Rough session RX/TX totals for the active interface, in MB

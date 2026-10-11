@@ -8,8 +8,8 @@ Generates, for each theme:
   - themes/<name>/dunstrc
   - wallpapers/<name>.png           (original procedural art, no copyright risk)
 """
-import math
 import random
+import zlib
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -24,36 +24,42 @@ PALETTES = {
         base="#1e1e2e", mantle="#181825", surface="#313244", surface2="#45475a",
         text="#cdd6f4", subtext="#a6adc8", accent="#cba6f7", accent2="#89b4fa",
         warning="#f9e2af", critical="#f38ba8", green="#a6e3a1", cursor="#f5e0dc",
+        overlay="#6c7086", accent3="#f5c2e7",
         dark=True,
     ),
     "catppuccin-latte": dict(
         base="#eff1f5", mantle="#e6e9ef", surface="#ccd0da", surface2="#bcc0cc",
         text="#4c4f69", subtext="#6c6f85", accent="#8839ef", accent2="#1e66f5",
         warning="#df8e1d", critical="#d20f39", green="#40a02b", cursor="#dc8a78",
+        overlay="#9ca0b0", accent3="#ea76cb",
         dark=False,
     ),
     "nord": dict(
         base="#2e3440", mantle="#242933", surface="#3b4252", surface2="#434c5e",
         text="#e5e9f0", subtext="#d8dee9", accent="#88c0d0", accent2="#5e81ac",
         warning="#ebcb8b", critical="#bf616a", green="#a3be8c", cursor="#88c0d0",
+        overlay="#4c566a", accent3="#b48ead",
         dark=True,
     ),
     "gruvbox": dict(
         base="#282828", mantle="#1d2021", surface="#3c3836", surface2="#504945",
         text="#ebdbb2", subtext="#d5c4a1", accent="#d79921", accent2="#fe8019",
         warning="#d79921", critical="#cc241d", green="#98971a", cursor="#fe8019",
+        overlay="#928374", accent3="#d3869b",
         dark=True,
     ),
     "dracula": dict(
         base="#282a36", mantle="#21222c", surface="#44475a", surface2="#565971",
         text="#f8f8f2", subtext="#bfbfd4", accent="#bd93f9", accent2="#ff79c6",
         warning="#f1fa8c", critical="#ff5555", green="#50fa7b", cursor="#bd93f9",
+        overlay="#6272a4", accent3="#8be9fd",
         dark=True,
     ),
     "tokyo-night": dict(
         base="#1a1b26", mantle="#16161e", surface="#24283b", surface2="#414868",
         text="#c0caf5", subtext="#a9b1d6", accent="#7aa2f7", accent2="#bb9af7",
         warning="#e0af68", critical="#f7768e", green="#9ece6a", cursor="#7aa2f7",
+        overlay="#565f89", accent3="#7dcfff",
         dark=True,
     ),
 }
@@ -78,6 +84,8 @@ def write_waybar_wofi_colors(name, p):
 @define-color text       {p['text']};
 @define-color subtext    {p['subtext']};
 @define-color accent     {p['accent']};
+@define-color accent3    {p['accent3']};
+@define-color overlay    {p['overlay']};
 @define-color warning    {p['warning']};
 @define-color critical   {p['critical']};
 """)
@@ -219,8 +227,10 @@ def write_dunstrc(name, p):
 
 
 # --------------------------------------------------------------- wallpaper
-def gen_wallpaper(name, p, w=1920, h=1080, seed=0):
-    random.seed(hash(name) & 0xffff)
+def gen_wallpaper(name, p, w=1920, h=1080):
+    # Seed from a stable hash of the theme name — Python's built-in hash() is
+    # salted per process, which would redraw every wallpaper on every run.
+    random.seed(zlib.crc32(name.encode("utf-8")) & 0xffff)
     base = hex_to_rgb(p["base"])
     mantle = hex_to_rgb(p["mantle"])
     accent = hex_to_rgb(p["accent"])

@@ -4,5 +4,7 @@
 @define-color text       #ebdbb2;
 @define-color subtext    #d5c4a1;
 @define-color accent     #d79921;
+@define-color accent3    #d3869b;
+@define-color overlay    #928374;
 @define-color warning    #d79921;
 @define-color critical   #cc241d;

@@ -35,14 +35,15 @@ echo "==> Fetching latest rice from $REPO_URL"
 git clone --depth 1 --quiet "$REPO_URL" "$WORKDIR/rice"
 
 # The repo may either BE the rice root, or wrap it in a subfolder
-# (e.g. the zip you get from GitHub download). Detect either layout.
+# (e.g. a GitHub zip download with a top-level directory). Detect either layout.
 if [ -f "$WORKDIR/rice/hypr/hyprland.conf" ]; then
     RICE_ROOT="$WORKDIR/rice"
 else
-    RICE_ROOT="$(find "$WORKDIR/rice" -maxdepth 2 -name hyprland.conf -exec dirname {} \; | xargs dirname | head -n1)"
+    CONF="$(find "$WORKDIR/rice" -maxdepth 3 -path '*/hypr/hyprland.conf' -print -quit 2>/dev/null || true)"
+    RICE_ROOT="${CONF%/hypr/hyprland.conf}"
 fi
 
-if [ -z "$RICE_ROOT" ] || [ ! -d "$RICE_ROOT" ]; then
+if [ -z "$RICE_ROOT" ] || [ ! -f "$RICE_ROOT/hypr/hyprland.conf" ]; then
     echo "Couldn't find hypr/hyprland.conf in the cloned repo — aborting."
     exit 1
 fi
