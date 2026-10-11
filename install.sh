@@ -10,7 +10,8 @@
 #   --minimal       install only [base] + [aur] from packages.txt (no extras)
 #   --no-backup     don't back up existing configs before replacing them
 #   --themes-only   only copy themes/wallpapers/scripts and apply the theme
-#   --no-packages   skip package installs and systemd services
+#   --no-packages   skip package installs and system services
+#   --auto-update   enable the daily GitHub Release updater (off by default)
 #   --dry-run       print every action, change nothing
 #   -h, --help      show this help
 #
@@ -46,7 +47,8 @@ BACKUP_MADE=0
 RICE_DIRS=(hypr waybar wofi kitty dunst eww scripts themes wallpapers fuzzel gtk-3.0 gtk-4.0 qt5ct)
 THEME_DIRS=(themes wallpapers scripts)   # what --themes-only touches
 
-MINIMAL=0; NO_BACKUP=0; THEMES_ONLY=0; NO_PACKAGES=0; DRY_RUN=0
+MINIMAL=0; NO_BACKUP=0; THEMES_ONLY=0; NO_PACKAGES=0; AUTO_UPDATE=0; DRY_RUN=0
+AUTO_UPDATE_STATUS="off (opt-in)"
 HELPER=""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo /)"
@@ -96,6 +98,7 @@ parse_args() {
             --no-backup)   NO_BACKUP=1 ;;
             --themes-only) THEMES_ONLY=1; NO_PACKAGES=1 ;;
             --no-packages) NO_PACKAGES=1 ;;
+            --auto-update) AUTO_UPDATE=1 ;;
             --dry-run)     DRY_RUN=1 ;;
             -h|--help)     usage; exit 0 ;;
             *) die "Unknown option: $1 (see --help)" ;;
@@ -263,6 +266,15 @@ copy_dotfiles() {
     done
     # current_theme is only seeded once, so re-running never resets your choice.
     if [ ! -f "$CFG/current_theme" ]; then run cp "$SRC/current_theme" "$CFG/current_theme"; fi
+    # Remember the install source for the release updater, but preserve a user's
+    # existing choice when re-running the installer.
+    if [ ! -f "$CFG/.rice-source" ]; then
+        if [ "$DRY_RUN" = 1 ]; then
+            info "[dry-run] remember update source: $REPO_URL"
+        else
+            printf '%s\n' "$REPO_URL" > "$CFG/.rice-source"
+        fi
+    fi
 
     run chmod +x "$CFG"/scripts/*.sh "$CFG"/scripts/*.py "$CFG"/hypr/scripts/*.sh 2>/dev/null || true
     [ -d "$CFG/eww/scripts" ] && run chmod +x "$CFG"/eww/scripts/*.sh 2>/dev/null || true
@@ -314,6 +326,39 @@ enable_services() {
     fi
 }
 
+setup_auto_update() {
+    [ "$AUTO_UPDATE" = 1 ] || return 0
+    step "Daily GitHub Release auto-update"
+    if ! command -v systemctl >/dev/null 2>&1; then
+        warn "systemctl not found — couldn't enable the release updater"
+        return 0
+    fi
+    if [ ! -f "$SRC/scripts/rice-ota.service" ] || [ ! -f "$SRC/scripts/rice-ota.timer" ]; then
+        warn "release updater systemd units are missing from the source"
+        return 0
+    fi
+
+    local unit_dir="$HOME/.config/systemd/user"
+    run mkdir -p "$unit_dir"
+    run cp "$SRC/scripts/rice-ota.service" "$unit_dir/rice-ota.service"
+    run cp "$SRC/scripts/rice-ota.timer" "$unit_dir/rice-ota.timer"
+    if ! run systemctl --user daemon-reload; then
+        warn "couldn't reload the user systemd manager; enable rice-ota.timer after logging in"
+        return 0
+    fi
+    if ! run systemctl --user enable --now rice-ota.timer; then
+        warn "couldn't enable the timer; run 'systemctl --user enable --now rice-ota.timer' after logging in"
+        return 0
+    fi
+    if [ "$DRY_RUN" = 1 ]; then
+        AUTO_UPDATE_STATUS="would enable"
+        ok "would enable daily GitHub Release checks"
+    else
+        AUTO_UPDATE_STATUS="enabled"
+        ok "daily GitHub Release checks enabled"
+    fi
+}
+
 apply_theme() {
     step "[7/8] Default theme + wallpaper"
     local theme
@@ -338,6 +383,7 @@ summary() {
     Theme        : $theme   (change with SUPER+T)
     Packages     : $([ "$NO_PACKAGES" = 1 ] && echo skipped || echo "from packages.txt (minimal=$MINIMAL)")
     Backup       : $([ "$BACKUP_MADE" = 1 ] && echo "$BACKUP_DIR" || echo "none needed")
+    Auto-update  : $AUTO_UPDATE_STATUS
     Log          : $LOG_FILE
 
     ${BOLD}Next:${RST}
@@ -391,6 +437,7 @@ main() {
     setup_qt
     enable_services
     apply_theme
+    setup_auto_update
     summary
 }
 

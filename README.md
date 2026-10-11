@@ -2,8 +2,9 @@
 
 A modular Hyprland setup: eight complete themes that restyle everything at
 once, a Performance Mode toggle, a fuzzy app menu whose colors follow your
-wallpaper, a popup installer for official and AUR packages, and a Control
-Center for live tuning. Nothing needs a reboot to change.
+wallpaper, a popup installer for official and AUR packages, a Control Center
+for live tuning, and an optional updater for published GitHub Releases. Nothing
+needs a reboot to change.
 
 > **Supported system: Arch Linux and Arch-based distributions only**
 > (EndeavourOS, Manjaro, CachyOS, Garuda, …). Other distributions are not
@@ -31,6 +32,12 @@ Center for live tuning. Nothing needs a reboot to change.
 bash <(curl -fsSL https://raw.githubusercontent.com/ddasq23/my-rice/main/install.sh)
 ```
 
+To also enable the daily GitHub Release updater, append `--auto-update`:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/ddasq23/my-rice/main/install.sh) --auto-update
+```
+
 ### From a clone
 
 ```bash
@@ -48,11 +55,24 @@ Then **log out and back in** and pick the Hyprland session (or reboot).
 | `--minimal` | Only the required packages (skips the `[extras]` sections) |
 | `--no-backup` | Don't back up existing configs before replacing them |
 | `--themes-only` | Only copy themes, wallpapers and scripts, then apply the theme |
-| `--no-packages` | Skip package installs and services (copy + theme only) |
+| `--no-packages` | Skip package installs and system services (copy + theme only) |
+| `--auto-update` | Enable the daily user timer for published GitHub Releases (opt-in) |
 | `--dry-run` | Print every action and change nothing |
 
 `install.sh` is safe to re-run. It stops with a message on the first failed
 step, and it prints the log path (`~/.cache/my-rice-install.log`).
+
+To opt in to automatic rice updates during installation, pass `--auto-update`:
+
+```bash
+./install.sh --auto-update
+```
+
+This installs and enables a **user** systemd timer. It checks GitHub once a day
+(with a randomized delay) and applies the latest published, non-prerelease
+release. It backs up the current rice first and reapplies your selected theme.
+No root access is needed. Automatic updates are off by default because they
+replace files managed by the rice.
 
 ### Manual install
 
@@ -173,6 +193,36 @@ A floating terminal with a fuzzy-search popup over the official repos and the AU
 
 Files: `hypr/scripts/pkg-menu.sh`, `hypr/scripts/pkg-search.sh`.
 
+### GitHub Release updater — `SUPER+SHIFT+U`
+
+The updater follows the repository's **latest published GitHub Release**; it
+does not pull from `main` or install untagged commits. Publish a normal release
+(not a draft or prerelease) on GitHub, and opted-in systems will pick it up on
+their next daily check. GitHub's generated source archive is used, so no custom
+release asset is required. Until the first release is published, checks report
+that none exists. This is polling, not an instant push notification.
+
+Check for a release without installing it, or apply the latest release immediately:
+
+```bash
+~/.config/scripts/ota-update.sh --check
+~/.config/scripts/ota-update.sh
+```
+
+The updater keeps a backup at `~/.config-backup-rice-ota-<date>`, remembers the
+installed release tag, and skips work when already current. For an existing
+installation, enable the daily timer with:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp ~/.config/scripts/rice-ota.service ~/.config/systemd/user/
+cp ~/.config/scripts/rice-ota.timer ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now rice-ota.timer
+```
+
+Disable it with `systemctl --user disable --now rice-ota.timer`.
+
 ### App menu — `SUPER+R`
 
 **fuzzel** is the launcher. I picked it over wofi (GTK, noticeably slower to
@@ -213,7 +263,7 @@ applies when you turn it off.
 | `SUPER + A` | Sidebar (network, Bluetooth, power, Pomodoro, themes) |
 | `SUPER + C` | Floating terminal clock |
 | `SUPER + SHIFT + V` | Clipboard history |
-| `SUPER + SHIFT + U` | Pull the latest rice from GitHub (OTA) |
+| `SUPER + SHIFT + U` | Apply the latest published GitHub Release |
 | `SUPER + L` | Lock screen |
 | `SUPER + Q` | Close window |
 | `SUPER + E` | File manager |
@@ -294,8 +344,9 @@ rm -rf ~/.local/state/rice
 Then restore a backup as above. Packages are left installed. Remove them with
 `sudo pacman -Rns <name>`, or use the app installer's remove menu.
 
-**Auto-update (optional, off by default):** `scripts/rice-ota.timer` can check
-GitHub daily. Disable it with `systemctl --user disable --now rice-ota.timer`.
+**Auto-update (optional, off by default):** install with `./install.sh --auto-update`
+or follow the release-updater steps above. Disable it with
+`systemctl --user disable --now rice-ota.timer`.
 
 ---
 

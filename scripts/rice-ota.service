@@ -1,6 +1,6 @@
 [Unit]
-Description=Pull latest Hyprland rice from GitHub
+Description=Check for and install the latest published my-rice GitHub release
 
 [Service]
 Type=oneshot
-ExecStart=%h/.config/scripts/ota-update.sh
+ExecStart=%h/.config/scripts/ota-update.sh --quiet
