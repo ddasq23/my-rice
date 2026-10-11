@@ -18,3 +18,5 @@ fi
 cp "$SRC" "$DEST"
 echo "$PROFILE" > "$HOME/.config/hypr/current_anim_profile"
 hyprctl reload >/dev/null
+# `reload` wipes runtime keywords, so re-apply Performance Mode if it is ON.
+"$HOME/.config/hypr/scripts/performance-mode.sh" reapply

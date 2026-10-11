@@ -41,5 +41,11 @@ fi
 # Persist: replace the "$VAR = ..." line in user-settings.conf
 sed -i "s/^\\\$${VAR} = .*/\\\$${VAR} = ${VALUE}/" "$SETTINGS"
 
+# While Performance Mode is ON the live values are owned by performance-mode.sh.
+# The value is saved above, so it takes effect when Performance Mode turns OFF.
+if [ "$(cat "$HOME/.local/state/rice/performance" 2>/dev/null)" = "on" ]; then
+    exit 0
+fi
+
 # Apply live — instant, no reload/flicker
 hyprctl keyword "$KW" "$VALUE" >/dev/null

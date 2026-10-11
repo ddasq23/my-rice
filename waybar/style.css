@@ -59,7 +59,7 @@ window#waybar {
 }
 
 #clock {
-    color: #f5c2e7;
+    color: @accent3;
     font-weight: bold;
 }
 
@@ -82,4 +82,19 @@ window#waybar {
 
 #tray > .needs-attention {
     background-color: @critical;
+}
+
+/* Performance Mode indicator (custom/perfmode) */
+#custom-perfmode {
+    padding: 0 10px;
+    margin: 4px 2px;
+    border-radius: 8px;
+    background: alpha(@surface, 0.6);
+    color: @overlay;
+    font-weight: bold;
+}
+
+#custom-perfmode.on {
+    color: @base;
+    background: @warning;
 }

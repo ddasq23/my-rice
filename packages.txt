@@ -1,0 +1,64 @@
+# packages.txt — everything install.sh installs. Edit freely: one package per line.
+#
+# Sections:
+#   [base]        required, official repos
+#   [aur]         required, AUR (yay resolves official + AUR names alike)
+#   [extras]      optional, official repos   (skipped by --minimal)
+#   [extras-aur]  optional, AUR              (skipped by --minimal; failures only warn)
+#
+# Lines starting with # are comments. Install manually with:
+#   yay -S --needed $(sed -e 's/#.*//' packages.txt | awk '/^\[/{next} NF')
+# Arch and Arch-based distributions only.
+
+[base]
+hyprland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+waybar
+kitty
+dunst
+libnotify
+hyprpaper
+hyprlock
+fuzzel
+papirus-icon-theme
+grim
+slurp
+wl-clipboard
+cliphist
+ttf-jetbrains-mono-nerd
+adwaita-icon-theme
+pipewire
+pipewire-pulse
+wireplumber
+networkmanager
+bluez
+bluez-utils
+power-profiles-daemon
+brightnessctl
+playerctl
+qt5ct
+python
+jq
+fzf
+curl
+git
+base-devel
+
+[aur]
+python-pywal
+python-colorthief
+eww
+
+[extras]
+wofi
+tty-clock
+pavucontrol
+nautilus
+firefox
+python-pillow
+
+[extras-aur]
+bibata-cursor-theme
+catppuccin-cursors-mocha
+catppuccin-cursors-latte

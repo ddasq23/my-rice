@@ -65,6 +65,22 @@ PALETTES = {
 }
 
 
+# Added with the 8-theme set (palette.conf in themes/<name>/ is the source of truth
+# for app colors; these entries only drive the wallpaper art).
+PALETTES["rose-pine"] = dict(
+    base="#191724", mantle="#1f1d2e", surface="#1f1d2e", surface2="#403d52",
+    text="#e0def4", subtext="#908caa", accent="#c4a7e7", accent2="#9ccfd8",
+    warning="#f6c177", critical="#eb6f92", green="#31748f", cursor="#ebbcba",
+    overlay="#6e6a86", accent3="#ebbcba", dark=True,
+)
+PALETTES["amoled"] = dict(
+    base="#000000", mantle="#000000", surface="#111111", surface2="#1f1f1f",
+    text="#e6e6e6", subtext="#9a9a9a", accent="#00d7ff", accent2="#5f87ff",
+    warning="#ffcc66", critical="#ff5f5f", green="#5fd787", cursor="#00d7ff",
+    overlay="#555555", accent3="#ff6ac1", dark=True,
+)
+
+
 def hex_to_rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))

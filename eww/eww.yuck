@@ -128,7 +128,9 @@
       (theme-dot :name "nord" :hex "#88c0d0")
       (theme-dot :name "gruvbox" :hex "#d79921")
       (theme-dot :name "dracula" :hex "#bd93f9")
-      (theme-dot :name "tokyo-night" :hex "#7aa2f7"))))
+      (theme-dot :name "tokyo-night" :hex "#7aa2f7")
+      (theme-dot :name "rose-pine" :hex "#c4a7e7")
+      (theme-dot :name "amoled" :hex "#00d7ff"))))
 
 (defwidget theme-dot [name hex]
   (button :class {current-theme == name ? "theme-dot active" : "theme-dot"}
